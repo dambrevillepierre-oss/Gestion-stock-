@@ -132,24 +132,29 @@
   <div id="orgChoiceScreen" class="center-screen hidden">
     <div class="auth-card">
       <h2>Bienvenue</h2>
-      <div class="auth-sub">Créez votre entreprise ou rejoignez celle d'un collègue avec un code.</div>
+      <div class="auth-sub">Êtes-vous admin ou vendeur ?</div>
+
+      <div class="tabs" style="margin-bottom:18px;">
+        <div class="tab active" id="tabRoleAdmin">Je suis Admin</div>
+        <div class="tab" id="tabRoleVendeur">Je suis Vendeur</div>
+      </div>
 
       <div class="stack">
         <div class="field"><label>Votre prénom</label><input type="text" id="ocDisplayName" placeholder="Ex: Awa"></div>
       </div>
 
-      <div class="panel" style="background:var(--panel-2);">
-        <h2 style="margin-bottom:8px;">Créer une entreprise</h2>
+      <div class="panel" style="background:var(--panel-2);" id="createOrgPanel">
+        <h2 style="margin-bottom:8px;">Créer mon entreprise</h2>
+        <div class="auth-sub" style="margin-bottom:10px;">Vous deviendrez administrateur avec accès complet.</div>
         <div class="field" style="margin-bottom:10px;"><label>Nom de l'entreprise</label><input type="text" id="ocOrgName" placeholder="Ex: Quincaillerie Awa"></div>
         <button class="btn block" id="createOrgBtn">Créer mon entreprise</button>
       </div>
 
-      <div class="divider">— ou —</div>
-
-      <div class="panel" style="background:var(--panel-2);">
+      <div class="panel hidden" style="background:var(--panel-2);" id="joinOrgPanel">
         <h2 style="margin-bottom:8px;">Rejoindre une entreprise</h2>
+        <div class="auth-sub" style="margin-bottom:10px;">Demandez ce code à votre admin — sans lui, vous ne pouvez pas rejoindre.</div>
         <div class="field" style="margin-bottom:10px;"><label>Code reçu de votre admin</label><input type="text" id="ocJoinCode" placeholder="Ex: A1B2C3" style="text-transform:uppercase;"></div>
-        <button class="btn secondary block" id="joinOrgBtn">Rejoindre</button>
+        <button class="btn secondary block" id="joinOrgBtn">Rejoindre en tant que vendeur</button>
       </div>
       <div class="error-msg" id="orgError"></div>
     </div>
@@ -321,6 +326,19 @@ document.getElementById("logoutBtn").addEventListener("click", async ()=>{
 });
 
 // ---------- CHOIX ORGANISATION ----------
+document.getElementById("tabRoleAdmin").addEventListener("click", ()=>{
+  document.getElementById("tabRoleAdmin").classList.add("active");
+  document.getElementById("tabRoleVendeur").classList.remove("active");
+  document.getElementById("createOrgPanel").classList.remove("hidden");
+  document.getElementById("joinOrgPanel").classList.add("hidden");
+});
+document.getElementById("tabRoleVendeur").addEventListener("click", ()=>{
+  document.getElementById("tabRoleVendeur").classList.add("active");
+  document.getElementById("tabRoleAdmin").classList.remove("active");
+  document.getElementById("joinOrgPanel").classList.remove("hidden");
+  document.getElementById("createOrgPanel").classList.add("hidden");
+});
+
 document.getElementById("createOrgBtn").addEventListener("click", async ()=>{
   const name = document.getElementById("ocOrgName").value.trim();
   const displayName = document.getElementById("ocDisplayName").value.trim();
@@ -332,33 +350,4 @@ document.getElementById("createOrgBtn").addEventListener("click", async ()=>{
   btn.disabled = true;
   try{
     const { error } = await sb.rpc("create_organization", { org_name: name, admin_name: displayName });
-    if(error){ errBox.textContent = error.message; btn.disabled=false; return; }
-    showToast("Entreprise créée !");
-    await loadMembershipAndData();
-  }catch(e){
-    errBox.textContent = "Erreur lors de la création.";
-  }
-  btn.disabled = false;
-});
-
-document.getElementById("joinOrgBtn").addEventListener("click", async ()=>{
-  const code = document.getElementById("ocJoinCode").value.trim();
-  const displayName = document.getElementById("ocDisplayName").value.trim();
-  const errBox = document.getElementById("orgError");
-  errBox.textContent = "";
-  if(!code || !displayName){ errBox.textContent = "Indiquez votre prénom et le code."; return; }
-
-  const btn = document.getElementById("joinOrgBtn");
-  btn.disabled = true;
-  try{
-    const { error } = await sb.rpc("join_organization", { code, member_name: displayName });
-    if(error){ errBox.textContent = "Code invalide, vérifiez avec votre admin."; btn.disabled=false; return; }
-    showToast("Vous avez rejoint l'entreprise !");
-    await loadMembershipAndData();
-  }catch(e){
-    errBox.textContent = "Erreur lors de l'inscription.";
-  }
-  btn.disabled = false;
-});
-
-// ---------- CHARGEMENT DONN
+    if(err
