@@ -245,7 +245,9 @@
 <script>
 const SUPABASE_URL = "https://qmwjeiitzvheqfqncphg.supabase.co";
 const SUPABASE_KEY = "sb_publishable_eXswS31tJqg0fibkYNbQwA_YXHW6k0_";
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false }
+});
 
 let currentUser = null;
 let membership = null;   // {org_id, role, display_name}
@@ -349,5 +351,4 @@ document.getElementById("createOrgBtn").addEventListener("click", async ()=>{
   const btn = document.getElementById("createOrgBtn");
   btn.disabled = true;
   try{
-    const { error } = await sb.rpc("create_organization", { org_name: name, admin_name: displayName });
-    if(err
+    const { error } = await sb.rpc("create_organiz
